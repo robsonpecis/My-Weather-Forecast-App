@@ -1,0 +1,1 @@
+To app run you need a token_api.py with a var api_key with you api key from OpenWheater
