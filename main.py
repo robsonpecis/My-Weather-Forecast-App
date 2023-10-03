@@ -20,6 +20,28 @@ def get_wheater(city, token):
     text_exibition['text'] = exibition
 
 
+def get_state():
+    request_states = requests.get(f'https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome')
+    request_states_dic = request_states.json()
+
+    acronym = []
+    state =['-- Selecionar --']
+    for indice, n in enumerate(request_states_dic):
+        acronym.append(request_states_dic[indice]['sigla'])
+        state.append(request_states_dic[indice]['nome'])
+
+    return state, acronym
+
+def get_cities(uf):
+    request_cities = requests.get(f'https://servicodados.ibge.gov.br/api/v1/localidades/estados/{uf}/distritos?orderBy=nome')
+    request_cities_dic = request_cities.json()
+
+    cities = ['-- Selecionar --']
+    for indice, n in enumerate(request_cities_dic):
+        cities.append(request_cities_dic[indice]['nome'])
+    
+    return cities
+
 # Creat the window
 window = Tk()
 window.geometry('400x200')
@@ -30,36 +52,23 @@ get_city.set('')
 
 
 # List of states and cities
-options_state = [
-    'Default',
-    'Estado1',
-    'Estado2'
-]
+states_and_ufs = get_state()
+options_state = states_and_ufs[0]
+options_uf = states_and_ufs[1]
 
-options_city = ['']
 
-state1 = [
-    'Default',
-    'Rio de Janeiro',
-    'Botucatu',
-    'Campinas'
-]
+options_city = []
+city_list = []
 
-state2 = [
-    'Default',
-    'Estado2, Cidade1',
-    'Esatdo2, cidade2',
-]
+for indice, state in enumerate(options_state):
+    options_city.append(get_cities(options_uf[indice - 1]))
 
 # Function to bind the comboboxs
 def pick_state(e):
-    if state_combobox.get() == 'Estado1':
-        city_combobox.config(value=state1)
-        city_combobox.current(0)
-    if state_combobox.get() == 'Estado2':
-        city_combobox.config(value=state2)
-        city_combobox.current(0)
-
+    for indice, state in enumerate(options_state):
+        if state_combobox.get() == state:
+            city_combobox.config(value=options_city[indice])
+            city_combobox.current(0)
 
 # Edit the windows title
 window.title('Previsão do Tempo')
